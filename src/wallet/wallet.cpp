@@ -1973,7 +1973,7 @@ void CWallet::ResendWalletTransactions()
     // that these are our transactions.
     if (GetTime() < nNextResend || !fBroadcastTransactions) return;
     bool fFirst = (nNextResend == 0);
-    nNextResend = GetTime() + GetRand(30 * 60);
+    nNextResend = GetTime() + GetRand(24 * 60 * 60);
     if (fFirst) return;
 
     // Only do it if there's been a new block since last time
