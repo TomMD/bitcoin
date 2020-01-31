@@ -1394,12 +1394,12 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 
 void RelayTransaction(const uint256& txid, const uint256& wtxid, const CConnman& connman)
 {
-    AssertLockHeld(cs_main);
     CInv inv(MSG_TX, txid);
     CInv winv(MSG_WTX, wtxid);
 
     connman.ForEachNode([&inv, &winv](CNode* pnode)
     {
+        AssertLockHeld(cs_main);
         CNodeState &state = *State(pnode->GetId());
         if (state.m_wtxid_relay) {
             pnode->PushInventory(winv);
@@ -2578,12 +2578,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         const uint256& txid = ptx->GetHash();
         const uint256& wtxid = ptx->GetWitnessHash();
 
+        LOCK2(cs_main, g_cs_orphans);
+
         CNodeState* nodestate = State(pfrom->GetId());
 
         const uint256& hash = nodestate->m_wtxid_relay ? wtxid : txid;
         pfrom->AddInventoryKnown(hash);
-
-        LOCK2(cs_main, g_cs_orphans);
 
         TxValidationState state;
 
