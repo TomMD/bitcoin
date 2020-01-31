@@ -954,17 +954,17 @@ public:
     }
 
 
-    void AddInventoryKnown(const CInv& inv)
+    void AddInventoryKnown(const uint256& hash)
     {
         if (m_tx_relay != nullptr) {
             LOCK(m_tx_relay->cs_tx_inventory);
-            m_tx_relay->filterInventoryKnown.insert(inv.hash);
+            m_tx_relay->filterInventoryKnown.insert(hash);
         }
     }
 
     void PushInventory(const CInv& inv)
     {
-        if (inv.type == MSG_TX && m_tx_relay != nullptr) {
+        if ((inv.type == MSG_TX || inv.type == MSG_WTX) && m_tx_relay != nullptr) {
             LOCK(m_tx_relay->cs_tx_inventory);
             if (!m_tx_relay->filterInventoryKnown.contains(inv.hash)) {
                 m_tx_relay->setInventoryTxToSend.insert(inv.hash);
